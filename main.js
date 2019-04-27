@@ -94,7 +94,10 @@ function sendToRendererContent(slackText) {
 
 //// Slack Outgoing Web Hook
 const { RTMClient } = require('@slack/client');
-const token = require('./account.json').token;
+const setting = require('./setting.json');
+const token = setting.token;
+const channel = setting.channel;
+const max_length = setting.max_length;
 
 const rtm = new RTMClient(token, { logLevel: 'debug' });
 
@@ -112,6 +115,9 @@ rtm.on('message', (event) => {
 
   // Log the message
   console.log(`(channel:${message.channel}) ${message.user} says: ${message.text}`);
+  if ((!message.channel || message.channel == channel) &&
+      message.text &&
+      (!max_length || message.text.length < max_length))
   sendToRendererContent(`${message.text}`);
 });
 
